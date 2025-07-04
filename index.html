@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تطبيق الأذان</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f0f4f8;
+      color: #222;
+      text-align: center;
+      padding: 20px;
+      direction: rtl;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #2b6777;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #52ab98;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2b6777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🕌 أوقات الصلاة</h1>
+    <div id="times">
+      <p>الفجر: <span id="fajr">--:--</span></p>
+      <p>الظهر: <span id="dhuhr">--:--</span></p>
+      <p>العصر: <span id="asr">--:--</span></p>
+      <p>المغرب: <span id="maghrib">--:--</span></p>
+      <p>العشاء: <span id="isha">--:--</span></p>
+    </div>
+    <button onclick="playAdhan()">🔊 تشغيل الأذان</button>
+  </div>
+
+  <!-- ملف صوت الأذان (يجب أن يكون لديك ملف adhan.mp3 أو رابط مباشر) -->
+  <audio id="adhanAudio" src="https://download.quranicaudio.com/quran/azan/Makkah.mp3"></audio>
+
+  <script>
+    function playAdhan() {
+      document.getElementById("adhanAudio").play();
+    }
+
+    function getPrayerTimes() {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const { latitude, longitude } = position.coords;
+
+          fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`)
+            .then(res => res.json())
+            .then(data => {
+              const times = data.data.timings;
+              document.getElementById("fajr").textContent = times.Fajr;
+              document.getElementById("dhuhr").textContent = times.Dhuhr;
+              document.getElementById("asr").textContent = times.Asr;
+              document.getElementById("maghrib").textContent = times.Maghrib;
+              document.getElementById("isha").textContent = times.Isha;
+            });
+        }, () => {
+          alert("يرجى السماح بالموقع لعرض أوقات الصلاة.");
+        });
+      } else {
+        alert("المتصفح لا يدعم تحديد الموقع.");
+      }
+    }
+
+    getPrayerTimes();
+  </script>
+</body>
+</html>
